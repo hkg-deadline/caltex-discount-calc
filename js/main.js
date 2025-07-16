@@ -142,4 +142,4 @@ function calculateResults() {
 }
 
 // Fetch config and prices on page load
-Promise.all([fetchPetrolPrices()]);
+Promise.all([fetchConfig(),fetchPetrolPrices()]);
