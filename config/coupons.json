@@ -1,0 +1,10 @@
+{
+    "coupons":[
+        {
+            "id": "350-50",
+            "description": "入滿$350減$50",
+            "spend": 350,
+            "discount": 50
+        }
+    ]
+}
