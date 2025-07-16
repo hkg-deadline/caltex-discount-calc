@@ -43,7 +43,7 @@ async function fetchConfig() {
 Data Spec: Open Data Portal https://data.gov.hk/en-data/dataset/cc-oilprice-oilprice */
 async function fetchPetrolPrices() {
     try {
-        const response = await fetch('https://www.consumer.org.hk/pricewatch/oilwatch/opendata/oilprice.json');
+        const response = await fetch('https://thingproxy.freeboard.io/fetch/https://www.consumer.org.hk/pricewatch/oilwatch/opendata/oilprice.json');
         const data = await response.json();
         
         // Find Caltex prices
