@@ -43,22 +43,18 @@ async function fetchConfig() {
 Data Spec: Open Data Portal https://data.gov.hk/en-data/dataset/cc-oilprice-oilprice */
 async function fetchPetrolPrices() {
     try {
-        const response = await fetch('https://thingproxy.freeboard.io/fetch/https://www.consumer.org.hk/pricewatch/oilwatch/opendata/oilprice.json');
-        const data = await response.json();
-        
-        // Find Caltex prices
-        const caltex = data.companies.find(company => company.company === 'Caltex');
-        if (!caltex) {
-            throw new Error('Caltex data not found');
+        const url = 'https://api.allorigins.win/get?url='+encodeURIComponent('https://www.consumer.org.hk/pricewatch/oilwatch/opendata/oilprice.json');
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ${response.status}');
         }
+        const data = await response.json();
+        const oilPriceData = JSON.parse(data.contents);
 
-        // Store prices
-        standardPrice = caltex.standardPrice ? parseFloat(caltex.standardPrice) : 0;
-        premiumPrice = caltex.premiumPrice ? parseFloat(caltex.premiumPrice) : 0;
+        // Find Caltex prices
+        standardPrice = oilPriceData.find(fuelType => fuelType.type.en === "Standard Petrol").prices.find(price => price.vendor.en === "Caltex");
+        premiumPrice = oilPriceData.find(fuelType => fuelType.type.en === "Premium Petrol").prices.find(price => price.vendor.en === "Caltex");
 
-        // Update displayed price
-        updatePriceDisplay();
-        document.getElementById('lastUpdated').textContent = new Date(data.updateTime).toLocaleString();
     } catch (error) {
         document.getElementById('error').textContent = 'Error fetching prices: ' + error.message;
         document.getElementById('error').classList.remove('hidden');
@@ -146,4 +142,4 @@ function calculateResults() {
 }
 
 // Fetch config and prices on page load
-Promise.all([fetchConfig(), fetchPetrolPrices()]);
+Promise.all([fetchPetrolPrices()]);
