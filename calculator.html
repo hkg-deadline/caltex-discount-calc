@@ -7,20 +7,14 @@
     <title>加德士能源計數機</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen transition-colors duration-300">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md text-gray-900 dark:text-gray-100">
-        <div class="flex justify-between items-center mb-4"><h1 class="text-2xl font-bold">加德士能源計數機</h1>
-        <button id="themeToggle" class="p-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                <svg id="themeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-            </button>
-        </div>        
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-4">加德士能源計數機</h1>
         
         <!-- Petrol Type Selection -->
         <div class="mb-4">
             <h2 class="text-lg font-semibold">燃油種類</h2>
-            <select id="petrol" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+            <select id="petrol" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="standard">黃金（平油）</option>
                 <option value="premium">白金（貴油）</option>
             </select>
@@ -29,25 +23,25 @@
         <!-- Discount Card Selection -->
         <div class="mb-4">
             <h2 class="text-lg font-semibold">能源卡</h2>
-            <select id="discountCards" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" onchange="toggleCustomDiscount()">
+            <select id="discountCards" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="toggleCustomDiscount()">
                 <!-- Options populated dynamically -->
             </select>
             <div id="customDiscountDiv" class="mt-2 hidden">
                 <label for="customDiscount" class="block text-sm font-medium">燃油折扣</label>
-                <input type="number" id="customDiscount" step="0.01" min="0" value="0" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="e.g., 1.50">
+                <input type="number" id="customDiscount" step="0.01" min="0" value="0" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 1.50">
             </div>
         </div>
 
         <!-- Coupon Selection -->
         <div class="mb-4">
             <h2 class="text-lg font-semibold">油劵</h2>
-            <select id="coupons" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+            <select id="coupons" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <!-- Options populated dynamically -->
             </select>
         </div>
 
         <!-- Calculate Button -->
-        <button onclick="calculateResults()" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition">計算</button>
+        <button onclick="calculateResults()" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">計算</button>
 
         <!-- Results -->
         <div id="results" class="mt-4 hidden">
@@ -64,7 +58,7 @@
         </div>
 
         <!-- Error Message -->
-        <p id="error" class="text-red-500 dark:text-red-400 text-sm mt-2 hidden"></p>
+        <p id="error" class="text-red-500 text-sm mt-2 hidden"></p>
     </div>
 
     <script src="js/main.js"></script>
