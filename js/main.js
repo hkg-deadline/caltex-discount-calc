@@ -145,10 +145,5 @@ function calculateResults() {
     document.getElementById('error').classList.add('hidden');
 }
 
-// Initialize theme, add event listeners, populate dropdowns, and fetch prices on page load
-document.addEventListener('DOMContentLoaded', () => {
-    initializeTheme();
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-    fetchConfig();
-    fetchPetrolPrices();
-});
+// Fetch config and prices on page load
+Promise.all([fetchConfig(),fetchPetrolPrices()]);
