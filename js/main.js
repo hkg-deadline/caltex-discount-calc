@@ -6,12 +6,12 @@ let coupons = [];
 // Laod the config json file for discount cards and coupons
 async function fetchConfig() {
     try {
-        const discountCardsResponse = await fetch('config/discountcards.json');
-        const couponsResponse = await fetch('config/coupons.json');
+        const discountCardsResponse = await fetch('./config/discountcards.json');
+        const couponsResponse = await fetch('./config/coupons.json');
         const discountCardsConfig = await discountCardsResponse.json();
         const couponsConfig = await couponsResponse.json();
 
-        discounts = discountCardsConfig.discounts;
+        discounts = discountCardsConfig.discountCards;
         coupons = couponsConfig.coupons;
 
         // Populate discountCard dropdown
@@ -25,7 +25,7 @@ async function fetchConfig() {
         });
 
         // Populate coupons dropdown
-        const couponSelect = document.getElementById('coupon');
+        const couponSelect = document.getElementById('coupons');
         couponSelect.innerHTML = '';
         coupons.forEach(coupon => {
             const option = document.createElement('option');
@@ -49,11 +49,11 @@ async function fetchPetrolPrices() {
             throw new Error('Network response was not ok: ${response.status}');
         }
         const data = await response.json();
-        const oilPriceData = JSON.parse(data.contents);
+        var oilPriceData = JSON.parse(data.contents);
 
         // Find Caltex prices
-        standardPrice = oilPriceData.find(fuelType => fuelType.type.en === "Standard Petrol").prices.find(price => price.vendor.en === "Caltex");
-        premiumPrice = oilPriceData.find(fuelType => fuelType.type.en === "Premium Petrol").prices.find(price => price.vendor.en === "Caltex");
+        standardPrice = oilPriceData.find(fuelType => fuelType.type.en === "Standard Petrol").prices.find(price => price.vendor.en === "Caltex").price;
+        premiumPrice = oilPriceData.find(fuelType => fuelType.type.en === "Premium Petrol").prices.find(price => price.vendor.en === "Caltex").price;
 
     } catch (error) {
         document.getElementById('error').textContent = 'Error fetching prices: ' + error.message;
@@ -63,20 +63,20 @@ async function fetchPetrolPrices() {
 
 // Toggle custom discount input visibility
 function toggleCustomDiscount() {
-    const discountType = document.getElementById('discountType').value;
+    const discountCard = document.getElementById('discountCards').value;
     const customDiscountDiv = document.getElementById('customDiscountDiv');
-    customDiscountDiv.classList.toggle('hidden', discountType !== 'others');
+    customDiscountDiv.classList.toggle('hidden', discountCard !== 'others');
 }
 
 // Calculate results
 function calculateResults() {
-    const petrolType = document.getElementById('petrolType').value;
-    const discountType = document.getElementById('discountType').value;
-    const couponType = document.getElementById('couponType').value;
+    const petrol = document.getElementById('petrol').value;
+    const discountCard = document.getElementById('discountCards').value;
+    const coupon = document.getElementById('coupons').value;
     const customDiscount = parseFloat(document.getElementById('customDiscount').value) || 0;
 
     // Get list price
-    const listPrice = petrolType === 'standard' ? standardPrice : premiumPrice;
+    let listPrice = petrol === 'standard' ? standardPrice : premiumPrice;
     if (listPrice === 0) {
         document.getElementById('error').textContent = 'Price data not available.';
         document.getElementById('error').classList.remove('hidden');
@@ -85,13 +85,12 @@ function calculateResults() {
 
     // Get Card discount
     let cardDiscount = 0;
-    if (discountType === 'others') {
+    if (discountCard === 'others') {
         cardDiscount = customDiscount;
     } else {
-        const discountConfig = discounts.find(d => d.value === discountType);
-        cardDiscount = petrolType === 'standard' ? discountConfig.standard : discountConfig.premium;
+        const discountConfig = discounts.find(d => d.id === discountCard);
+        cardDiscount = petrol === 'standard' ? discountConfig.standardDiscount : discountConfig.premiumDiscount;
     }
-
     // Validate card discount
     if (cardDiscount > listPrice) {
         document.getElementById('error').textContent = 'Discount cannot be greater than the list price.';
@@ -105,9 +104,9 @@ function calculateResults() {
     }
 
     // Get coupon details
-    const coupon = coupons.find(c => c.value === couponType);
-    const couponValue = coupon ? coupon.amount : 0;
-    const totalSpend = coupon ? coupon.spend : 350;
+    const couponConfig = coupons.find(c => c.id === coupon);
+    const couponValue = couponConfig ? couponConfig.discount : 0;
+    const totalSpend = couponConfig ? couponConfig.spend : 350;
 
     // Calculate the total amount petrol requested, free petrol and paid petrol
     const totalLiters = totalSpend / listPrice;
@@ -123,20 +122,25 @@ function calculateResults() {
     }
 
     // Calculate the actual amount paid in statement
-    const amountPaid = paidLiters * effectivePrice;
+    const amountPaid = paidLiters * discountedPrice;
 
     // Calculate actual price and discount (per Liter)
     const actualPricePerLiter = amountPaid / totalLiters;
     const actualDiscountPerLiter = listPrice - actualPricePerLiter;
+
     // Display results
-    document.getElementById('petrol').textContent = document.getElementById('petrolType').textContent;
-    document.getElementById('listPrice').textContent = listPrice.toFixed(2);
-    document.getElementById('totalLiters').textContent = totalLiters.toFixed(2);
-    document.getElementById('freeLiters').textContent = freeLiters.toFixed(2);
-    document.getElementById('paidLiters').textContent = paidLiters.toFixed(2);
-    document.getElementById('amountPaid').textContent = amountPaid.toFixed(2);
-    document.getElementById('actualPrice').textContent = actualPricePerLiter.toFixed(2);
-    document.getElementById('actualDiscount').textContent = actualDiscountPerLiter.toFixed(2);
+    const petrolSelected = document.getElementById('petrol');
+    const petrolSelectedIndex = petrolSelected.selectedIndex;
+
+    document.getElementById('petrolSelected').textContent = petrolSelected.options[petrolSelectedIndex].text;
+    document.getElementById('listPrice').textContent = Number(listPrice).toFixed(2);
+    document.getElementById('totalLiters').textContent = Number(totalLiters).toFixed(3);
+    document.getElementById('freeLiters').textContent = Number(freeLiters).toFixed(3);
+    document.getElementById('paidLiters').textContent = Number(paidLiters).toFixed(3);
+    document.getElementById('discountedPrice').textContent = Number(discountedPrice).toFixed(2);
+    document.getElementById('amountPaid').textContent = Number(amountPaid).toFixed(2);
+    document.getElementById('actualPrice').textContent = Number(actualPricePerLiter).toFixed(2);
+    document.getElementById('actualDiscount').textContent = Number(actualDiscountPerLiter).toFixed(2);
     document.getElementById('results').classList.remove('hidden');
     document.getElementById('error').classList.add('hidden');
 }
