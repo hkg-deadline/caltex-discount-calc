@@ -2,18 +2,24 @@
     "discountCards": [
         {
             "id":"caltex-personal-StarCard",
+            "description":"普通能源卡：黃金減$9.5 / 白金減$10",
+            "standardDiscount":9.5,
+            "premiumDiscount":10
+        },
+        {
+            "id":"caltex-personal-StarCard2",
             "description":"普通能源卡：黃金減$9 / 白金減$10",
             "standardDiscount":9,
             "premiumDiscount":10
         },
         {
-            "id":"caltex-personal-StarCard2",
+            "id":"caltex-personal-StarCard3",
             "description":"普通能源卡：黃金減$8.5 / 白金減$9",
             "standardDiscount":8.5,
             "premiumDiscount":9
         },
         {
-            "id":"caltex-personal-StarCard3",
+            "id":"caltex-personal-StarCard4",
             "description":"普通能源卡：黃金減$8 / 白金減$8.5",
             "standardDiscount":8,
             "premiumDiscount":8.5
