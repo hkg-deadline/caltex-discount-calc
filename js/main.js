@@ -6,13 +6,15 @@ let coupons = [];
 // Laod the config json file for discount cards and coupons
 async function fetchConfig() {
     try {
-        const discountCardsResponse = await fetch('./config/discountcards.json');
+		const discountCardsResponse = await fetch('./config/discountcards.json');       
         const couponsResponse = await fetch('./config/coupons.json');
+        
         const discountCardsConfig = await discountCardsResponse.json();
         const couponsConfig = await couponsResponse.json();
-
+		
         discounts = discountCardsConfig.discountCards;
         coupons = couponsConfig.coupons;
+		
 
         // Populate discountCard dropdown
         const discountSelect = document.getElementById('discountCards');
@@ -39,33 +41,33 @@ async function fetchConfig() {
     }
 }
 
-/* Get the latest Caltex listed petrol price from Consumer Council
-Data Spec: Open Data Portal https://data.gov.hk/en-data/dataset/cc-oilprice-oilprice */
 async function fetchPetrolPrices() {
     try {
-        const url = 'https://api.allorigins.win/get?url='+encodeURIComponent('https://www.consumer.org.hk/pricewatch/oilwatch/opendata/oilprice.json');
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ${response.status}');
-        }
-        const data = await response.json();
-        var oilPriceData = JSON.parse(data.contents);
-
+        const petrolPriceResponse = await fetch('./config/petrolprice.json');
+		const petrolPriceConfig = await petrolPriceResponse.json();
+		
         // Find Caltex prices
-        standardPrice = oilPriceData.find(fuelType => fuelType.type.en === "Standard Petrol").prices.find(price => price.vendor.en === "Caltex").price;
-        premiumPrice = oilPriceData.find(fuelType => fuelType.type.en === "Premium Petrol").prices.find(price => price.vendor.en === "Caltex").price;
-
+        standardPrice = petrolPriceConfig.standard;
+        premiumPrice = petrolPriceConfig.premium;
+		
     } catch (error) {
         document.getElementById('error').textContent = 'Error fetching prices: ' + error.message;
         document.getElementById('error').classList.remove('hidden');
     }
 }
 
+
+// Update the Coupon List based on value selected in Pertrol and Discount Card
+function togglePetrolChange() {
+    const petrol = document.getElementById('petrol').value;
+    const discountCard = document.getElementById('discountCards').value;
+}
+
 // Toggle custom discount input visibility
 function toggleCustomDiscount() {
     const discountCard = document.getElementById('discountCards').value;
     const customDiscountDiv = document.getElementById('customDiscountDiv');
-    customDiscountDiv.classList.toggle('hidden', discountCard !== 'others');
+    customDiscountDiv.classList.toggle('hidden', discountCard !== 'starCard-others');
 }
 
 // Calculate results
