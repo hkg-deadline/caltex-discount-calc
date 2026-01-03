@@ -2,27 +2,27 @@
     "coupons":[
         {
             "id": "starCard-350-50",
-            "description": "私人能源卡限定: 入滿$350減$50",
+            "description": "私人能源卡 - 入滿$350減$50",
             "spend": 350,
             "discount": 50,
-            "type" : "starCard",
-            "petrol": "all"
+            "validCardType" : "starCard",
+            "validFor": ["standard", "premium"]
         },
         {
             "id": "hsbc-permium-800-300",
-            "description": "滙豐信用卡限定: *白金*入滿$800減$300",
+            "description": "滙豐信用卡 - *白金*入滿$800減$300",
             "spend": 800,
             "discount": 300,
-            "type" : "hsbc",
-            "petrol": "premium"
+            "validCardType" : "hsbc",
+            "validFor": ["premium"]
         },
         {
             "id": "hsbc-standard-800-280",
-            "description": "滙豐信用卡限定: *黃金*入滿$800減$280",
+            "description": "滙豐信用卡 - *黃金*入滿$800減$280",
             "spend": 800,
             "discount": 280,
-            "type" : "hsbc",
-            "petrol": "standard"
+            "validCardType" : "hsbc",
+            "validFor": ["standard"]
         }
     ]
 }

@@ -1,151 +1,173 @@
-let standardPrice = 0;
-let premiumPrice = 0;
-let discounts = [];
-let coupons = [];
+let prices = { standard: 0, premium: 0 };
+let discountsData = [];
+let couponsData = [];
 
-// Laod the config json file for discount cards and coupons
-async function fetchConfig() {
+// 1. Initialize: Load all data and setup the page
+async function init() {
     try {
-		const discountCardsResponse = await fetch('./config/discountcards.json');       
-        const couponsResponse = await fetch('./config/coupons.json');
-        
-        const discountCardsConfig = await discountCardsResponse.json();
-        const couponsConfig = await couponsResponse.json();
-		
-        discounts = discountCardsConfig.discountCards;
-        coupons = couponsConfig.coupons;
-		
+        // Fetch all files in parallel
+        const [cardsRes, couponsRes, pricesRes] = await Promise.all([
+            fetch('./config/discountcards.json'),
+            fetch('./config/coupons.json'),
+            fetch('./config/petrolprice.json')
+        ]);
 
-        // Populate discountCard dropdown
-        const discountSelect = document.getElementById('discountCards');
-        discountSelect.innerHTML = '';
-        discounts.forEach(discount => {
-            const option = document.createElement('option');
-            option.value = discount.id;
-            option.textContent = discount.description;
-            discountSelect.appendChild(option);
-        });
+        const cardsConfig = await cardsRes.json();
+        const couponsConfig = await couponsRes.json();
+        const pricesConfig = await pricesRes.json();
 
-        // Populate coupons dropdown
-        const couponSelect = document.getElementById('coupons');
-        couponSelect.innerHTML = '';
-        coupons.forEach(coupon => {
-            const option = document.createElement('option');
-            option.value = coupon.id;
-            option.textContent = coupon.description;
-            couponSelect.appendChild(option);
-        });
+        // Store data globally
+        discountsData = cardsConfig.discountCards;
+        couponsData = couponsConfig.coupons;
+        prices.standard = pricesConfig.standard;
+        prices.premium = pricesConfig.premium;
+
+        // A. Fill the Discount Card dropdown initially
+        populateDropdown('discountCards', discountsData);
+
+        // B. Setup Event Listeners (This replaces inline HTML onchange events)
+        setupEventListeners();
+
+        // C. Initial Population of Coupons (based on default selections)
+        updateCouponList();
+
     } catch (error) {
-        document.getElementById('error').textContent = 'Error loading configuration: ' + error.message;
-        document.getElementById('error').classList.remove('hidden');
+        showError('Error loading data: ' + error.message);
     }
 }
 
-async function fetchPetrolPrices() {
-    try {
-        const petrolPriceResponse = await fetch('./config/petrolprice.json');
-		const petrolPriceConfig = await petrolPriceResponse.json();
-		
-        // Find Caltex prices
-        standardPrice = petrolPriceConfig.standard;
-        premiumPrice = petrolPriceConfig.premium;
-		
-    } catch (error) {
-        document.getElementById('error').textContent = 'Error fetching prices: ' + error.message;
-        document.getElementById('error').classList.remove('hidden');
-    }
+// Logic to filter and update the Coupon dropdown
+function updateCouponList() {
+    const petrolType = document.getElementById('petrol').value;
+    const cardId = document.getElementById('discountCards').value;
+    const card = discountsData.find(d => d.id === cardId);
+    
+    // Filter the global couponsData array
+    const filteredCoupons = couponsData.filter(coupon => {
+        if (coupon.validFor && coupon.validFor.includes(petrolType) && coupon.validCardType && coupon.validCardType.includes(card.type)) return true;
+        return false; // Default: Show all coupons
+    });
+
+    // Re-populate the dropdown with the filtered list
+    populateDropdown('coupons', filteredCoupons);
 }
 
-
-// Update the Coupon List based on value selected in Pertrol and Discount Card
-function togglePetrolChange() {
-    const petrol = document.getElementById('petrol').value;
-    const discountCard = document.getElementById('discountCards').value;
-}
-
-// Toggle custom discount input visibility
-function toggleCustomDiscount() {
-    const discountCard = document.getElementById('discountCards').value;
-    const customDiscountDiv = document.getElementById('customDiscountDiv');
-    customDiscountDiv.classList.toggle('hidden', discountCard !== 'starCard-others');
-}
-
-// Calculate results
+// Calculation Logic
 function calculateResults() {
-    const petrol = document.getElementById('petrol').value;
-    const discountCard = document.getElementById('discountCards').value;
-    const coupon = document.getElementById('coupons').value;
-    const customDiscount = parseFloat(document.getElementById('customDiscount').value) || 0;
+    // Clear previous errors
+    document.getElementById('error').classList.add('hidden');
 
-    // Get list price
-    let listPrice = petrol === 'standard' ? standardPrice : premiumPrice;
-    if (listPrice === 0) {
-        document.getElementById('error').textContent = 'Price data not available.';
-        document.getElementById('error').classList.remove('hidden');
-        return;
-    }
+    // Get Inputs
+    const petrolType = document.getElementById('petrol').value;
+    const cardId = document.getElementById('discountCards').value;
+    const couponId = document.getElementById('coupons').value;
+    const customVal = parseFloat(document.getElementById('customDiscount').value) || 0;
 
-    // Get Card discount
+    // A. Determine List Price
+    const listPrice = petrolType === 'standard' ? prices.standard : prices.premium;
+    if (!listPrice) return showError('Price data unavailable.');
+
+    // B. Determine Card Discount
     let cardDiscount = 0;
-    if (discountCard === 'others') {
-        cardDiscount = customDiscount;
+    if (cardId === 'others') {
+        cardDiscount = customVal;
     } else {
-        const discountConfig = discounts.find(d => d.id === discountCard);
-        cardDiscount = petrol === 'standard' ? discountConfig.standardDiscount : discountConfig.premiumDiscount;
-    }
-    // Validate card discount
-    if (cardDiscount > listPrice) {
-        document.getElementById('error').textContent = 'Discount cannot be greater than the list price.';
-        document.getElementById('error').classList.remove('hidden');
-        return;
-    }
-    if (cardDiscount < 0) {
-        document.getElementById('error').textContent = 'Discount cannot be negative.';
-        document.getElementById('error').classList.remove('hidden');
-        return;
+        const card = discountsData.find(d => d.id === cardId);
+        // Safety check if card is not found (e.g. data issue)
+        if (!card) return; 
+        cardDiscount = petrolType === 'standard' ? card.standardDiscount : card.premiumDiscount;
     }
 
-    // Get coupon details
-    const couponConfig = coupons.find(c => c.id === coupon);
-    const couponValue = couponConfig ? couponConfig.discount : 0;
-    const totalSpend = couponConfig ? couponConfig.spend : 350;
+    // Validation
+    if (cardDiscount < 0 || cardDiscount > listPrice) {
+        return showError('Invalid discount amount.');
+    }
 
-    // Calculate the total amount petrol requested, free petrol and paid petrol
+    // Determine Coupon Details
+    const coupon = couponsData.find(c => c.id === couponId);
+    const couponValue = coupon ? coupon.discount : 0;
+    const totalSpend = coupon ? coupon.spend : 350; // Default spend if no coupon
+
+    const discountedPrice = listPrice - cardDiscount;
+    if (discountedPrice <= 0) return showError('Discounted price cannot be zero or less.');
     const totalLiters = totalSpend / listPrice;
     const paidLiters = (totalSpend - couponValue) / listPrice;
     const freeLiters = totalLiters - paidLiters;
-
-    // Calculate discount price (Listed price - card's discount)
-    const discountedPrice = listPrice - cardDiscount;
-    if (discountedPrice <= 0) {
-        document.getElementById('error').textContent = 'Discounted price cannot be zero or negative.';
-        document.getElementById('error').classList.remove('hidden');
-        return;
-    }
-
-    // Calculate the actual amount paid in statement
     const amountPaid = paidLiters * discountedPrice;
-
-    // Calculate actual price and discount (per Liter)
     const actualPricePerLiter = amountPaid / totalLiters;
     const actualDiscountPerLiter = listPrice - actualPricePerLiter;
 
-    // Display results
-    const petrolSelected = document.getElementById('petrol');
-    const petrolSelectedIndex = petrolSelected.selectedIndex;
+    updateResult('listPrice', listPrice);
+    updateResult('totalLiters', totalLiters, 3);
+    updateResult('freeLiters', freeLiters, 3);
+    updateResult('paidLiters', paidLiters, 3);
+    updateResult('discountedPrice', discountedPrice);
+    updateResult('amountPaid', amountPaid);
+    updateResult('actualPrice', actualPricePerLiter);
+    updateResult('actualDiscount', actualDiscountPerLiter);
 
-    document.getElementById('petrolSelected').textContent = petrolSelected.options[petrolSelectedIndex].text;
-    document.getElementById('listPrice').textContent = Number(listPrice).toFixed(2);
-    document.getElementById('totalLiters').textContent = Number(totalLiters).toFixed(3);
-    document.getElementById('freeLiters').textContent = Number(freeLiters).toFixed(3);
-    document.getElementById('paidLiters').textContent = Number(paidLiters).toFixed(3);
-    document.getElementById('discountedPrice').textContent = Number(discountedPrice).toFixed(2);
-    document.getElementById('amountPaid').textContent = Number(amountPaid).toFixed(2);
-    document.getElementById('actualPrice').textContent = Number(actualPricePerLiter).toFixed(2);
-    document.getElementById('actualDiscount').textContent = Number(actualDiscountPerLiter).toFixed(2);
+    const petrolSelect = document.getElementById('petrol');
+    document.getElementById('petrolSelected').textContent = petrolSelect.options[petrolSelect.selectedIndex].text;
     document.getElementById('results').classList.remove('hidden');
-    document.getElementById('error').classList.add('hidden');
 }
 
-// Fetch config and prices on page load
-Promise.all([fetchConfig(),fetchPetrolPrices()]);
+// fill <select> elements
+function populateDropdown(elementId, items) {
+    const select = document.getElementById(elementId);
+    
+    // Save currently selected value to try and restore it after update
+    const previousValue = select.value;
+    
+    select.innerHTML = '';
+    items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.description;
+        select.appendChild(option);
+    });
+
+    // If the previously selected coupon is still in the new list, keep it selected.
+    // Otherwise, it defaults to the first option.
+    if (previousValue && Array.from(select.options).some(o => o.value === previousValue)) {
+        select.value = previousValue;
+    }
+}
+
+// UI Interaction: Show/Hide custom input
+function toggleCustomDiscount() {
+    const isOthers = document.getElementById('discountCards').value === 'starCard-others';
+    const div = document.getElementById('customDiscountDiv');
+    
+    if (isOthers) div.classList.remove('hidden');
+    else div.classList.add('hidden');
+}
+
+// Update text content with formatting
+function updateResult(id, value, decimals = 2) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = Number(value).toFixed(decimals);
+}
+
+// Show error messages
+function showError(msg) {
+    const el = document.getElementById('error');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    document.getElementById('results').classList.add('hidden');
+}
+
+// Event Listeners
+function setupEventListeners() {
+    document.getElementById('petrol').addEventListener('change', () => {
+        updateCouponList();
+    });
+
+    document.getElementById('discountCards').addEventListener('change', () => {
+        toggleCustomDiscount();
+        updateCouponList();
+    });
+
+}
+
+// Start
+init();
