@@ -69,7 +69,7 @@ function calculateResults() {
 
     // B. Determine Card Discount
     let cardDiscount = 0;
-    if (cardId === 'others') {
+    if (cardId === 'starCard-others') {
         cardDiscount = customVal;
     } else {
         const card = discountsData.find(d => d.id === cardId);
