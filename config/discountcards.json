@@ -14,7 +14,14 @@
             "standardDiscount":9.5,
             "premiumDiscount":10
         },
-                {
+        {
+            "id":"caltex-personal-StarCard3",
+            "type":"starCard",
+            "description":"私人能源卡：黃金減$10 / 白金減$11",
+            "standardDiscount":10,
+            "premiumDiscount":11
+        },
+        {
             "id":"caltex-personal-StarCard-hkaa",
             "type":"starCard",
             "description":"私人能源卡：黃金減$10 / 白金減$10.5 (香港汽車會)",
