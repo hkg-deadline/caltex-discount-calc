@@ -9,7 +9,7 @@ async function init() {
         const [cardsRes, couponsRes, pricesRes] = await Promise.all([
             fetch('./config/discountcards.json'),
             fetch('./config/coupons.json'),
-            fetch('./config/petrolprice.json')
+            fetch('https://hkg-deadline.github.io/hk-petrol-price-crawler/json/petrolprice.json')
         ]);
 
         const cardsConfig = await cardsRes.json();
@@ -19,8 +19,11 @@ async function init() {
         // Store data globally
         discountsData = cardsConfig.discountCards;
         couponsData = couponsConfig.coupons;
-        prices.standard = pricesConfig.standard;
-        prices.premium = pricesConfig.premium;
+		
+		const standardPetrol = pricesConfig.find(item => item.type === "Standard Petrol");
+		const premiumPetrol = pricesConfig.find(item => item.type === "Premium Petrol");
+        prices.standard = standardPetrol ? standardPetrol.price.Caltex : null;
+        prices.premium = premiumPetrol ? premiumPetrol.price.Caltex : null;
 
         // A. Fill the Discount Card dropdown initially
         populateDropdown('discountCards', discountsData);
