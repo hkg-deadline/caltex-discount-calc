@@ -109,8 +109,8 @@ function calculateResults() {
     updateResult('actualPrice', actualPricePerLiter);
     updateResult('actualDiscount', actualDiscountPerLiter);
 
-    const petrolSelect = document.getElementById('petrol');
-    document.getElementById('petrolSelected').textContent = petrolSelect.options[petrolSelect.selectedIndex].text;
+    //const petrolSelect = document.getElementById('petrol');
+    //document.getElementById('petrolSelected').textContent = petrolSelect.options[petrolSelect.selectedIndex].text;
     document.getElementById('results').classList.remove('hidden');
 }
 
@@ -157,6 +157,51 @@ function showError(msg) {
     el.textContent = msg;
     el.classList.remove('hidden');
     document.getElementById('results').classList.add('hidden');
+}
+
+function selectPetrol(type) {
+    const selectEl = document.getElementById('petrol');
+    selectEl.value = type;
+
+    selectEl.dispatchEvent(new Event('change'));
+
+    const btnStd = document.getElementById('btn-standard');
+    const btnPrem = document.getElementById('btn-premium');
+
+    // High Contrast Active Class (Solid Red with Shadow)
+    const activeClass = "py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 shadow-md bg-red-600 dark:bg-red-500 text-white shadow-red-500/25";
+    // Subtle Inactive Class
+    const inactiveClass = "py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+
+    if (type === 'standard') {
+        btnStd.className = activeClass;
+        btnPrem.className = inactiveClass;
+    } else {
+        btnStd.className = inactiveClass;
+        btnPrem.className = activeClass;
+    }
+}
+
+function handleCalculate() {
+    if (typeof calculateResults === 'function') {
+        calculateResults();
+    }
+
+    const resultsDiv = document.getElementById('results');
+    const statsGrid = document.getElementById('statsGrid');
+    const errorDiv = document.getElementById('error');
+
+    if (errorDiv && errorDiv.classList.contains('hidden')) {
+        resultsDiv.classList.remove('hidden');
+
+        resultsDiv.classList.remove('animate-fade-in-up');
+        statsGrid.classList.remove('animate-pop-in');
+        void resultsDiv.offsetWidth; 
+        resultsDiv.classList.add('animate-fade-in-up');
+        statsGrid.classList.add('animate-pop-in');
+
+        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Event Listeners
