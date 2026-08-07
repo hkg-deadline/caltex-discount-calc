@@ -20,3 +20,8 @@
 
 ## 網站預覽
 請瀏覽 https://hkg-deadline.github.io/caltex-discount-calc/
+
+## AI使用聲明
+本網站於編寫過程中曾使用Google Gemini協助完成下列項目：
+* UI 介面
+* JavaScript 計算部份除錯
