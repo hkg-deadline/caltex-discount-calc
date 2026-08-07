@@ -110,8 +110,8 @@ function calculateResults() {
     updateResult('actualDiscount', actualDiscountPerLiter);
 
     document.getElementById('gridListPrice').innerText = listPrice;
-    //const petrolSelect = document.getElementById('petrol');
-    //document.getElementById('petrolSelected').textContent = petrolSelect.options[petrolSelect.selectedIndex].text;
+    const petrolSelect = document.getElementById('petrol');
+    document.getElementById('petrolSelected').textContent = petrolSelect.options[petrolSelect.selectedIndex].text;
     document.getElementById('results').classList.remove('hidden');
 }
 
