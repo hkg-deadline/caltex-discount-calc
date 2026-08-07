@@ -10,7 +10,7 @@
 
 ## 資料來源
 
-本網站的車用汽油價格資料來自香港消費者委員會的油價資訊通（經[資料一站通](https://data.gov.hk)及以[hk-petrol-price-crawler](https://github.com/hkg-deadline/hk-petrol-price-crawler)存取）。
+本網站的車用汽油價格資料來自香港消費者委員會的油價資訊通（經[開放數據平台](https://data.gov.hk)及以[hk-petrol-price-crawler](https://github.com/hkg-deadline/hk-petrol-price-crawler)存取）。
 
 ## 使用方法
 
