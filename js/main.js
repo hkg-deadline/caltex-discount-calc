@@ -7,8 +7,8 @@ async function init() {
     try {
         // Fetch all files in parallel
         const [cardsRes, couponsRes, pricesRes] = await Promise.all([
-            fetch('./config/discountcards.json'),
-            fetch('./config/coupons.json'),
+            fetch('https://hkg-deadline.github.io/hk-petrol-price-crawler/json/caltex-discountcards.json'),
+            fetch('https://hkg-deadline.github.io/hk-petrol-price-crawler/json/caltex-coupons.json'),
             fetch('https://hkg-deadline.github.io/hk-petrol-price-crawler/json/petrolprice.json')
         ]);
 
